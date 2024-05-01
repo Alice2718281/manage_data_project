@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chicago Crime Analysis After Covid</title>
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="sb-nav-fixed">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <!-- Navbar Content Here -->
+    </nav>
+    <div class="container-fluid p-4">
+        <h1 class="mb-4">Chicago Crime Analysis After Covid</h1>
+        <form id="yearForm" class="mb-4">
+            <div class="form-group">
+                <label for="yearSelect">Select Year:</label>
+                <select class="form-control" id="yearSelect">
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="fetchData()">Show Data</button>
+        </form>
+        <!-- Plotly Chart Divs -->
+        <div id="crime-map" class="plot-container"></div>
+        <div id="crime-over-time" class="plot-container"></div>
+        <div id="crime-type-frequency" class="plot-container"></div>
+    </div>
+    <footer class="sticky-footer bg-white">
+        <!-- Footer Content Here -->
+    </footer>
+
+    <script>
+    function fetchData() {
+        const year = document.getElementById('yearSelect').value;
+        
+        fetchPlotData('choropleth', 'crime-map', year);
+        fetchPlotData('line', 'crime-over-time', year);
+        fetchPlotData('bar', 'crime-type-frequency', year);
+    }
+
+    function fetchPlotData(route, elementId, year) {
+        fetch(`/data/${route}?year=${year}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            Plotly.newPlot(elementId, data);
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            document.getElementById(elementId).innerText = `Error: ${error.message}`;
+        });
+    }
+
+    // When the document is ready, fetch data for the default selected year
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchData();
+    });
+    </script>
+</body>
+</html>
+
